@@ -4,13 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "canopy birl.peg && node index.js"
+    "start": "node index.js",
+    "test": "mocha"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "babel-generator": "^6.26.1",
-    "canopy": "^0.3.0",
     "pegjs": "^0.10.0"
+  },
+  "devDependencies": {
+    "mocha": "^6.2.0"
   }
 }
