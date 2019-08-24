@@ -1,0 +1,385 @@
+// BIRL Grammar
+// ==========================
+// Generated for peg.js
+//
+
+program
+  = bl* begin_program program:(expression / bl)* end_program bl*
+  {
+    return {
+      File: {
+        type: 'File',
+        program: {
+          type: 'Program',
+          body: program,
+        },
+      }
+    }
+}
+
+
+// TOMA ESSES PESOS SEU MERDA
+// Types
+// ==========================
+//
+
+begin_program = 'HORA DO SHOW'
+end_program = 'BIRL'
+char_type = 'FRANGO'
+short_type = 'MONSTRINHO'
+int_type = 'MONSTRO'
+long_type = 'MONSTRAO'
+float_type = 'TRAPEZIO'
+double_type = 'TRAPEZIO DESCENDENTE'
+unsigned_type = 'BICEPS'
+
+types
+ = (begin_program /
+    end_program /
+    char_type /
+    short_type /
+    int_type /
+    long_type /
+    float_type /
+    double_type /
+    unsigned_type)
+
+// TOMA ESSA FUNÇÃO SEU FRANGO!
+// Standard functions
+// ==========================
+//
+print_func
+  = 'CE QUER VER ESSA PORRA?'
+
+standard_functions
+  = (print_func)
+
+// NÃO É ÁGUA COM MÚSCULO
+// Useless tokens
+// ==========================
+//
+
+function_pre_call
+  = 'AJUDA O MALUCO TA DOENTE'
+
+function_pre_declaration
+  = 'OH O HOME AI PO'
+
+birl
+  = 'BIRL'
+
+// DERRUBAR ARVORE NO IBIRAPUERA
+// function tokens
+// ==========================
+//
+
+return
+  = ident* 'BORA CUMPADI' ws+ return_expression:expression ws* ';' ws*
+  {
+    return {
+      return_expression,
+    }
+  }
+
+call_args
+ = (operation / variable_name / value)
+
+arg_list
+  = head:call_args tail:(ws? ',' ws? call_args)*
+  {
+    var array = [head]
+    for (var t in tail) {
+        array.push(tail[t][3])
+    }
+    return array
+  }
+
+standard_function_call
+  = function_name:standard_functions ws* '(' ws* args:arg_list ws* ')'
+  {
+    return {
+      statement: 'print_statement',
+      function_name: function_name,
+      args: args
+    }
+  }
+
+function_call
+  = function_pre_call ws function_name:variable_name '(' args:arg_list ')'
+  {
+    return {
+      function_name: function_name,
+        args: args
+    }
+  }
+
+arg_declaration_list
+  = head:( types ws variable_name) tail:(ws? ',' ws? types ws variable_name)*
+  {
+    var array = [{
+      type: head[0],
+        name: head[2]
+    }]
+    for (var t in tail) {
+        const arg = tail[t];
+        array.push({
+          type: arg[3],
+            name: arg[5]
+        })
+    }
+    return array
+  }
+
+function_declaration
+  = function_pre_declaration ws+ types ws+ function_name:variable_name '(' args:arg_declaration_list ')' ws* bl?
+    ident* block:mandatory_block
+    birl
+  {
+    return {
+      function_name,
+      args,
+      block,
+    }
+  }
+
+// ELE QUE A GENTE QUER
+// if expressions
+// ==========================
+//
+
+condition_expressions = (operation / function_call / variable_name / value)
+
+mandatory_block
+  = head:(inner_block_expressions) tail:(inner_block_expressions)*
+  {
+    const block_expressions = [head];
+    for (var t in tail) {
+      block_expressions.push(tail[t]);
+    }
+    return block_expressions;
+  }
+
+else_if_block
+  = ident* 'QUE NAO VAI DAR O QUE?' ws+ condition:condition_expressions ws* bl block:mandatory_block
+  {
+    return {
+      condition,
+      block,
+    }
+  }
+
+else_block
+  = ident* 'NAO VAI DAR NAO' ws* bl
+    ident* block:mandatory_block
+  {
+    return {
+      block,
+    }
+  }
+
+if_expression =
+  'ELE QUE A GENTE QUER?'
+    ws+ condition:condition_expressions ws* bl
+    ident* block:(inner_block_expressions / else_if_block / bl)*
+    (else_block)?
+    ident* 'BIRL'
+    { return {
+      condition,
+        block,
+      }
+    }
+
+// OS EXERCICIOS SEU FRANGO
+// operations
+// ==========================
+//
+
+sum_operator = '+'
+minus_operator = '-'
+mult_operator = '*'
+division_operator = '/'
+lt_operator = '<'
+lte_operator = lt_operator '='
+gt_operator = '>'
+gte_operator = gt_operator '='
+equal_operator = '=='
+nequal_operator = '!='
+or_operator = '||'
+and_operator = '&&'
+
+operators
+  = (
+    sum_operator /
+    minus_operator /
+    mult_operator /
+    division_operator /
+    lt_operator /
+    lte_operator /
+    gt_operator /
+    gte_operator /
+    equal_operator /
+    nequal_operator /
+    or_operator /
+    and_operator
+ )
+
+operands = (value / variable_name)
+
+operation
+  = op:operation_terminal /
+    '(' op:operation ')'
+   { return op }
+
+operation_terminal
+  = o1:operands ws? operation:operators ws? o2:(operation / operands) ws?
+  {
+    return {
+      o1,
+        operation,
+        o2,
+    }
+  }
+
+// BORA DE NOVO PORRA
+// loops
+// ==========================
+//
+
+continue = 'VAMO MONSTRO;' { return 'continue' }
+break = 'SAI FILHO DA PUTA;' { return 'break' }
+
+for_block
+  = head:(inner_block_expressions) tail:(inner_block_expressions)*
+  {
+    const block_expressions = [head];
+    for (var t in tail) {
+      block_expressions.push(tail[t]);
+    }
+    return block_expressions;
+  }
+
+for_loop
+  = 'MAIS QUERO MAIS' '('
+    counter:(var_attribution / var_declaration) ws* ';'
+    ws* condition:condition_expressions ws* ';'
+    ws* counter_diff:operation ws* ')' bl*
+    ident* block:for_block
+    ident* birl
+  {
+    return {
+      counter,
+      condition,
+      counter_diff,
+      block,
+    }
+  }
+
+while_loop
+  = 'NEGATIVA BAMBAM' '('condition:condition_expressions ')' ws* bl
+    ident* block:for_block
+    ident* birl
+  {
+    return {
+        token_name: 'while',
+        condition,
+        block,
+    }
+  }
+
+// BIRRRLLL É TREZE PORRA
+// values and expression
+// ==========================
+//
+
+inner_block_expressions = (continue / break / return / expression) bl?
+
+expression
+  = ident:ident* value:(
+  operation /
+    value /
+    for_loop /
+    var_attribution /
+    var_declaration /
+    function_call /
+    standard_function_call /
+    function_declaration /
+    if_expression) bl?
+  { return {'identation_count': ident.length, "value": value}}
+
+value
+  = (string / number)
+
+array_separator
+  = ',' {return ''}
+
+array
+  = '[' head:value tail:(array_separator value)* ']'
+  {
+    var array = [head]
+    for (var t in tail) {
+        array.push(tail[t][1])
+    }
+    return array
+  }
+
+iterable
+  = array
+
+var_values
+  = (value / operation / function_call)
+
+var_attribution
+  = variable_name:variable_name ws* '=' ws* value:var_values
+  {
+    return {
+      variable_name,
+      value,
+    }
+  }
+
+
+var_declaration
+  = type:types ws variable_name:variable_name ws* '=' ws* value:var_values
+  {
+    return {
+      type: type,
+      variable_name,
+      value,
+    }
+  }
+
+ident
+  = '    ' { return 'IDENT'}
+
+variable_name
+  = head:[a-zA-Z]+ tail:[a-zA-Z0-9]* { return head.concat(tail).join("") }
+
+string "string"
+  = quotation_mark chars:char* quotation_mark { return chars.join(""); }
+
+number = num:[0-9]+ {return parseInt(num.join(""), 10)}
+
+char
+  = unescaped
+  / escape
+    sequence:(
+        '"'
+      / "\\"
+      / "/"
+      / "b" { return "\b"; }
+      / "f" { return "\f"; }
+      / "n" { return "\n"; }
+      / "r" { return "\r"; }
+      / "t" { return "\t"; }
+      / "u" digits:$(HEXDIG HEXDIG HEXDIG HEXDIG) {
+          return String.fromCharCode(parseInt(digits, 16));
+        }
+    )
+    { return sequence; }
+
+escape         = "\\"
+quotation_mark = '"'
+unescaped      = [\x20-\x21\x23-\x5B\x5D-\u10FFFF]
+HEXDIG = [0-9a-f]i
+bl = [\n]+ { return 'break_line' }
+ws = [ \t\r]+ { return 'space'}
