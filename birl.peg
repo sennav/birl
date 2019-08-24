@@ -97,17 +97,20 @@ standard_function_call
   {
     /* VIRA console.log MONSTRAO */
     return {
-      type: 'CallExpression',
-      arguments: args,
-      callee: {
-        type: 'MemberExpression',
-        object: {
-          type: 'Identifier',
-          name: 'console',
-        },
-        property: {
-          type: 'Identifier',
-          name: 'log',
+      type: 'ExpressionStatement',
+      expression: {
+        type: 'CallExpression',
+        arguments: args,
+        callee: {
+          type: 'MemberExpression',
+          object: {
+            type: 'Identifier',
+            name: 'console',
+          },
+          property: {
+            type: 'Identifier',
+            name: 'log',
+          },
         },
       }
     }
@@ -314,10 +317,7 @@ expression
     function_declaration /
     if_expression) bl?
   {
-    return {
-      type: 'ExpressionStatement',
-      expression,
-    }
+    return expression;
   }
 value
   = (string / number)
@@ -355,9 +355,18 @@ var_declaration
   = type:types ws variable_name:variable_name ws* '=' ws* value:var_values
   {
     return {
-      type: type,
-      variable_name,
-      value,
+      type: 'VariableDeclaration',
+      kind: 'var',
+      declarations: [
+        {
+          type: 'VariableDeclarator',
+          id: {
+            type: 'Identifier',
+            name: variable_name,
+          },
+          init: value,
+        }
+      ]
     }
   }
 
