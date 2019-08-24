@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "babel-generator": "^6.26.1",
     "canopy": "^0.3.0",
     "pegjs": "^0.10.0"
   }

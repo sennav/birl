@@ -7,13 +7,11 @@ program
   = bl* begin_program program:(expression / bl)* end_program bl*
   {
     return {
-      File: {
-        type: 'File',
-        program: {
-          type: 'Program',
-          body: program,
-        },
-      }
+      type: 'File',
+      program: {
+        type: 'Program',
+        body: program,
+      },
     }
 }
 
@@ -97,10 +95,21 @@ arg_list
 standard_function_call
   = function_name:standard_functions ws* '(' ws* args:arg_list ws* ')'
   {
+    /* VIRA console.log MONSTRAO */
     return {
-      statement: 'print_statement',
-      function_name: function_name,
-      args: args
+      type: 'CallExpression',
+      arguments: args,
+      callee: {
+        type: 'MemberExpression',
+        object: {
+          type: 'Identifier',
+          name: 'console',
+        },
+        property: {
+          type: 'Identifier',
+          name: 'log',
+        },
+      }
     }
   }
 
@@ -294,7 +303,7 @@ while_loop
 inner_block_expressions = (continue / break / return / expression) bl?
 
 expression
-  = ident:ident* value:(
+  = ident:ident* expression:(
   operation /
     value /
     for_loop /
@@ -304,8 +313,12 @@ expression
     standard_function_call /
     function_declaration /
     if_expression) bl?
-  { return {'identation_count': ident.length, "value": value}}
-
+  {
+    return {
+      type: 'ExpressionStatement',
+      expression,
+    }
+  }
 value
   = (string / number)
 
@@ -355,7 +368,13 @@ variable_name
   = head:[a-zA-Z]+ tail:[a-zA-Z0-9]* { return head.concat(tail).join("") }
 
 string "string"
-  = quotation_mark chars:char* quotation_mark { return chars.join(""); }
+  = quotation_mark chars:char* quotation_mark
+  {
+    return {
+      type: 'StringLiteral',
+      value: chars.join(""),
+    };
+  }
 
 number = num:[0-9]+ {return parseInt(num.join(""), 10)}
 
