@@ -237,18 +237,31 @@ operators
 
 operands = (value / variable_name)
 
-operation
-  = op:operation_terminal /
-    '(' op:operation ')'
-   { return op }
-
-operation_terminal
-  = o1:operands ws? operation:operators ws? o2:(operation / operands) ws?
+operation_expression = op:operation
   {
     return {
-      o1,
-        operation,
-        o2,
+      type: 'ExpressionStatement',
+      expression: op,
+    }
+  }
+
+open_parenthesis = '('
+close_parenthesis = '('
+
+operation
+  = open_parenthesis? op:(operation_terminal) close_parenthesis?
+  {
+    return op;
+  }
+
+operation_terminal
+  = o1:operands ws? operator:operators ws? o2:(operation / operands) ws?
+  {
+    return {
+      type: 'BinaryExpression',
+      left: o1,
+      operator,
+      right: o2,
     }
   }
 
@@ -307,7 +320,7 @@ inner_block_expressions = (continue / break / return / expression) bl?
 
 expression
   = ident:ident* expression:(
-  operation /
+    operation_expression /
     value /
     for_loop /
     var_attribution /
@@ -385,7 +398,12 @@ string "string"
     };
   }
 
-number = num:[0-9]+ {return parseInt(num.join(""), 10)}
+number = num:[0-9]+ {
+  return {
+    type: 'NumericLiteral',
+    value: parseInt(num.join(""), 10),
+  }
+}
 
 char
   = unescaped
