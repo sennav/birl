@@ -3,15 +3,19 @@ const fs = require('fs');
 const generate = require('babel-generator').default;
 
 const grammar = fs.readFileSync('./birl.peg', 'utf8');
-
 const birl = pegjs.generate(grammar);
-const ast = birl.parse(
-`
-HORA DO SHOW
-CE QUER VER ESSA PORRA?("Hello", "jdaosj")
-BIRL
-`);
 
-ast.program.body = ast.program.body.filter(line => typeof(line) === 'object' );
-console.log(JSON.stringify(ast, null, 2));
-console.log(generate(ast));
+function getBirlAST(birlCode) {
+  const ast = birl.parse(birlCode);
+  ast.program.body = ast.program.body.filter(line => typeof(line) === 'object' );
+  return ast;
+}
+
+function birlToJs(birlCode) {
+  const ast = getBirlAST(birlCode);
+  return generate(ast).code;
+}
+
+module.exports = {
+  birlToJs,
+};
