@@ -326,6 +326,7 @@ inner_block_expressions = block:(continue / break / return_expression / expressi
 
 expression_statement = expression:(
     operation_expression /
+    var_attribution /
     value /
     function_call /
     standard_function_call
@@ -342,7 +343,6 @@ expression
   = ident:ident* expression:(
     expression_statement /
     for_loop /
-    var_attribution /
     var_declaration /
     function_call /
     function_declaration /
@@ -373,12 +373,16 @@ iterable
 var_values
   = (value / operation / function_call)
 
+attribution_operators = ('=' / '-=' / '+=')
+
 var_attribution
-  = variable_name:variable_name ws* '=' ws* value:var_values
+  = var_identifier:var_identifier ws* operator:(attribution_operators) ws* value:var_values
   {
     return {
-      variable_name,
-      value,
+      type: 'AssignmentExpression',
+      operator,
+      left: var_identifier,
+      right: value,
     }
   }
 
