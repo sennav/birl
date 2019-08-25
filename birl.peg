@@ -72,7 +72,8 @@ birl
 //
 
 return_expression
-  = ident* 'BORA CUMPADI' ws+ return_expression:(expression / var_identifier) ws* bl?
+  = ident* 'BORA CUMPADI' ws+
+    return_expression:(value / operation_expression / unary_operation / var_identifier / function_call / function_declaration) ws* bl?
   {
     return {
       type: 'ReturnStatement',
@@ -81,7 +82,7 @@ return_expression
   }
 
 call_args
- = (operation / value / var_identifier)
+ = (unary_operation / operation / value / var_identifier)
 
 arg_list
   = head:call_args tail:(ws? ',' ws? call_args)*
@@ -243,7 +244,7 @@ operators
     and_operator
  )
 
-operands = (value / var_identifier)
+operands = (function_call / unary_operation / value / var_identifier)
 
 operation_expression = op:operation
   {
@@ -351,13 +352,14 @@ while_loop
 // ==========================
 //
 
-inner_block_expressions = block:(continue / break / return_expression / expression) bl?
+inner_block_expressions = block:(continue / break / expression / expression_statement) bl?
   {
     return block
   }
 
 expression_statement = expression:(
     operation_expression /
+    unary_operation /
     var_attribution /
     value /
     function_call /
@@ -373,13 +375,13 @@ expression_statement = expression:(
 // Expression is probably overused, migrating to expression_statement
 expression
   = ident:ident* expression:(
-    expression_statement /
     for_loop /
     while_loop /
     var_declaration /
-    function_call /
     function_declaration /
-    if_expression
+    if_expression /
+    return_expression /
+    expression_statement
   ) bl?
   {
     return expression;
@@ -452,7 +454,7 @@ ident
   = '  '
 
 variable_name
-  = head:[a-zA-Z-_]+ tail:[a-zA-Z0-9-_]* { return head.concat(tail).join("") }
+  = head:[a-zA-Z_]+ tail:[a-zA-Z0-9_]* { return head.concat(tail).join("") }
 
 string
   = quotation_mark chars:char* quotation_mark

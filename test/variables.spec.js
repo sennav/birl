@@ -1,5 +1,5 @@
 require('chai').should();
-const birl = require('../index.js');
+const birl = require('../birl.js');
 
 const declarationCode = `
 HORA DO SHOW

@@ -1,21 +1,11 @@
-const pegjs = require('pegjs');
 const fs = require('fs');
-const generate = require('babel-generator').default;
+const { birlToJs } = require('./birl.js');
 
-const grammar = fs.readFileSync('./birl.peg', 'utf8');
-const birl = pegjs.generate(grammar);
-
-function getBirlAST(birlCode) {
-  const ast = birl.parse(birlCode);
-  ast.program.body = ast.program.body.filter(line => typeof(line) === 'object' );
-  return ast;
+function main() {
+  const birlFilepath = process.argv[2];
+  const birlCode = fs.readFileSync(birlFilepath, 'utf8');
+  const jsCode = birlToJs(birlCode);
+  eval(jsCode);
 }
 
-function birlToJs(birlCode) {
-  const ast = getBirlAST(birlCode);
-  return generate(ast).code;
-}
-
-module.exports = {
-  birlToJs,
-};
+main();
