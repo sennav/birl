@@ -7,7 +7,7 @@ FRANGO frango = "frango"
 BIRL
 `;
 
-describe('standard_function_call', function() {
+describe('var_declaration', function() {
   describe('FUNCIONA SEU FRANGO', function() {
     it('should return correct code', function() {
       // Arrange, Act

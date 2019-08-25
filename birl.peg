@@ -4,7 +4,7 @@
 //
 
 program
-  = bl* begin_program program:(expression / bl)* end_program bl*
+  = bl* begin_program ws* bl program:(expression)* end_program bl*
   {
     return {
       type: 'File',
@@ -71,11 +71,12 @@ birl
 // ==========================
 //
 
-return
-  = ident* 'BORA CUMPADI' ws+ return_expression:expression ws* ';' ws*
+return_expression
+  = ident* 'BORA CUMPADI' ws+ return_expression:(expression / var_identifier) ws* bl?
   {
     return {
-      return_expression,
+      type: 'ReturnStatement',
+      argument: return_expression,
     }
   }
 
@@ -97,60 +98,53 @@ standard_function_call
   {
     /* VIRA console.log MONSTRAO */
     return {
-      type: 'ExpressionStatement',
-      expression: {
-        type: 'CallExpression',
-        arguments: args,
-        callee: {
-          type: 'MemberExpression',
-          object: {
-            type: 'Identifier',
-            name: 'console',
-          },
-          property: {
-            type: 'Identifier',
-            name: 'log',
-          },
+      type: 'CallExpression',
+      arguments: args,
+      callee: {
+        type: 'MemberExpression',
+        object: {
+          type: 'Identifier',
+          name: 'console',
         },
-      }
+        property: {
+          type: 'Identifier',
+          name: 'log',
+        },
+      },
     }
   }
 
 function_call
-  = function_pre_call ws function_name:variable_name '(' args:arg_list ')'
+  = function_pre_call ws callee:var_identifier '(' args:arg_list ')'
   {
     return {
-      function_name: function_name,
-        args: args
+      type: 'CallExpression',
+      callee,
+      arguments: args,
     }
   }
 
 arg_declaration_list
-  = head:( types ws variable_name) tail:(ws? ',' ws? types ws variable_name)*
+  = head:( types ws+ var_identifier) tail:(ws* ',' ws+ types ws var_identifier)* ws*
   {
-    var array = [{
-      type: head[0],
-        name: head[2]
-    }]
+    var array = [head[2]]
     for (var t in tail) {
         const arg = tail[t];
-        array.push({
-          type: arg[3],
-            name: arg[5]
-        })
+        array.push(arg[5]);
     }
     return array
   }
 
 function_declaration
-  = function_pre_declaration ws+ types ws+ function_name:variable_name '(' args:arg_declaration_list ')' ws* bl?
-    ident* block:mandatory_block
-    birl
+  = function_pre_declaration ws+ types ws+ function_identifier:var_identifier ws* '(' params:arg_declaration_list ')' ws* bl
+    ident* body:mandatory_block
+    ident* birl
   {
     return {
-      function_name,
-      args,
-      block,
+      type: 'FunctionDeclaration',
+      id: function_identifier,
+      params,
+      body,
     }
   }
 
@@ -204,7 +198,7 @@ if_expression =
     ws+ test:condition_expressions ws* bl
     ident* consequent:(mandatory_block)
     alternate:(else_block / else_if_block)?
-    ident* 'BIRL'
+    ident* birl
     { return {
         type: 'IfStatement',
         test,
@@ -247,14 +241,11 @@ operators
     and_operator
  )
 
-operands = (value / variable_name)
+operands = (value / var_identifier)
 
 operation_expression = op:operation
   {
-    return {
-      type: 'ExpressionStatement',
-      expression: op,
-    }
+    return op
   }
 
 open_parenthesis = '('
@@ -328,22 +319,35 @@ while_loop
 // ==========================
 //
 
-inner_block_expressions = block:(continue / break / return / expression) bl?
+inner_block_expressions = block:(continue / break / return_expression / expression) bl?
   {
     return block
   }
 
-expression
-  = ident:ident* expression:(
+expression_statement = expression:(
     operation_expression /
     value /
+    function_call /
+    standard_function_call
+  )
+  {
+    return {
+      type: 'ExpressionStatement',
+      expression,
+    }
+  }
+
+// Expression is probably overused, migrating to expression_statement
+expression
+  = ident:ident* expression:(
+    expression_statement /
     for_loop /
     var_attribution /
     var_declaration /
     function_call /
-    standard_function_call /
     function_declaration /
-    if_expression) bl?
+    if_expression
+  ) bl?
   {
     return expression;
   }
@@ -398,13 +402,22 @@ var_declaration
     }
   }
 
+var_identifier
+  = variable_name:variable_name
+  {
+    return {
+      type: 'Identifier',
+      name: variable_name,
+    }
+  }
+
 ident
-  = '    ' { return 'IDENT'}
+  = '  '
 
 variable_name
-  = head:[a-zA-Z]+ tail:[a-zA-Z0-9]* { return head.concat(tail).join("") }
+  = head:[a-zA-Z-_]+ tail:[a-zA-Z0-9-_]* { return head.concat(tail).join("") }
 
-string "string"
+string
   = quotation_mark chars:char* quotation_mark
   {
     return {
@@ -440,6 +453,7 @@ char
 
 escape         = "\\"
 quotation_mark = '"'
+single_quotation_mark = "'"
 unescaped      = [\x20-\x21\x23-\x5B\x5D-\u10FFFF]
 HEXDIG = [0-9a-f]i
 bl = [\n]+ { return 'break_line' }
