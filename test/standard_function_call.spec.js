@@ -3,7 +3,7 @@ const birl = require('../index.js');
 
 const birlCode = `
 HORA DO SHOW
-CE QUER VER ESSA PORRA?("arg1", "arg2")
+CE QUER VER ESSA PORRA?("arg1", arg2)
 BIRL
 `;
 
@@ -14,7 +14,7 @@ describe('standard_function_call', function() {
       const jsCode = birl.birlToJs(birlCode);
 
       // Assert
-      jsCode.should.be.equal('console.log("arg1", "arg2");');
+      jsCode.should.be.equal('console.log("arg1", arg2);');
     });
   });
 });

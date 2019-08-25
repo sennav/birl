@@ -81,7 +81,7 @@ return_expression
   }
 
 call_args
- = (operation / variable_name / value)
+ = (operation / value / var_identifier)
 
 arg_list
   = head:call_args tail:(ws? ',' ws? call_args)*
@@ -216,6 +216,7 @@ sum_operator = '+'
 minus_operator = '-'
 mult_operator = '*'
 division_operator = '/'
+modulo_operator = '%'
 lt_operator = '<'
 lte_operator = lt_operator '='
 gt_operator = '>'
@@ -231,6 +232,7 @@ operators
     minus_operator /
     mult_operator /
     division_operator /
+    modulo_operator /
     lt_operator /
     lte_operator /
     gt_operator /
@@ -268,49 +270,79 @@ operation_terminal
     }
   }
 
+
+unary_operators = operator:('++' / '--')
+  {
+    return operator
+  }
+
+unary_operation = var_identifier:var_identifier operator:unary_operators
+  {
+    return {
+      type: 'UpdateExpression',
+      argument: var_identifier,
+      operator,
+    }
+  }
+
 // BORA DE NOVO PORRA
 // loops
 // ==========================
 //
 
-continue = 'VAMO MONSTRO' { return 'continue' }
-break = 'SAI FILHO DA PUTA' { return 'break' }
+continue = ident:ident* 'VAMO MONSTRO'
+  {
+    return {
+      type: 'ContinueStatement'
+    }
+  }
+
+break = ident:ident* 'SAI FILHO DA PUTA'
+  {
+    return {
+      type: 'BreakStatement',
+    }
+  }
 
 for_block
-  = head:(inner_block_expressions) tail:(inner_block_expressions)*
+  = head:(inner_block_expressions) bl* tail:(inner_block_expressions)* bl*
   {
     const block_expressions = [head];
     for (var t in tail) {
       block_expressions.push(tail[t]);
     }
-    return block_expressions;
+    return {
+      type: 'BlockStatement',
+      body: block_expressions,
+    };
   }
 
 for_loop
-  = 'MAIS QUERO MAIS' '('
-    counter:(var_attribution / var_declaration) ws* ';'
-    ws* condition:condition_expressions ws* ';'
-    ws* counter_diff:operation ws* ')' bl*
-    ident* block:for_block
+  = ident* 'MAIS QUERO MAIS' ws+ '(' ws*
+    init:(var_attribution / var_declaration) ws* ';'
+    ws* test:condition_expressions ws* ';'
+    ws* update:(operation / unary_operation) ws* ')' ws* bl*
+    ident* body:for_block
     ident* birl
   {
     return {
-      counter,
-      condition,
-      counter_diff,
-      block,
+      type: 'ForStatement',
+      init,
+      test,
+      update,
+      body,
     }
   }
 
 while_loop
-  = 'NEGATIVA BAMBAM' '('condition:condition_expressions ')' ws* bl
-    ident* block:for_block
+  = ident* 'NEGATIVA BAMBAM' ws+ '(' ws* test:condition_expressions ws* ')' ws* bl
+    ident* body:for_block
     ident* birl
   {
     return {
-        token_name: 'while',
-        condition,
-        block,
+        type: 'WhileStatement',
+        test,
+        body,
     }
   }
 
@@ -343,6 +375,7 @@ expression
   = ident:ident* expression:(
     expression_statement /
     for_loop /
+    while_loop /
     var_declaration /
     function_call /
     function_declaration /
