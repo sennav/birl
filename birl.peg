@@ -29,7 +29,7 @@ int_type = 'MONSTRO'
 long_type = 'MONSTRAO'
 float_type = 'TRAPEZIO'
 double_type = 'TRAPEZIO DESCENDENTE'
-unsigned_type = 'BICEPS'
+unsigned_type = 'BICEPS MONSTRO' // Only unsigned int
 
 types
  = (begin_program /
@@ -159,24 +159,36 @@ function_declaration
 // ==========================
 //
 
-condition_expressions = (operation / function_call / variable_name / value)
+condition_expressions = (
+  operation /
+  function_call /
+  variable_name /
+  value
+)
 
 mandatory_block
-  = head:(inner_block_expressions) tail:(inner_block_expressions)*
+  = head:(inner_block_expressions) bl* tail:(inner_block_expressions)* bl*
   {
     const block_expressions = [head];
     for (var t in tail) {
       block_expressions.push(tail[t]);
     }
-    return block_expressions;
+    return {
+      type: 'BlockStatement',
+      body: block_expressions,
+    };
   }
 
 else_if_block
-  = ident* 'QUE NAO VAI DAR O QUE?' ws+ condition:condition_expressions ws* bl block:mandatory_block
+  = ident* 'QUE NAO VAI DAR O QUE?' ws+ test:condition_expressions ws* bl
+    ident* block:mandatory_block
+    ident* alternate:(else_block /else_if_block)?
   {
     return {
-      condition,
-      block,
+      type: 'IfStatement',
+      test,
+      consequent: block,
+      alternate,
     }
   }
 
@@ -184,20 +196,20 @@ else_block
   = ident* 'NAO VAI DAR NAO' ws* bl
     ident* block:mandatory_block
   {
-    return {
-      block,
-    }
+    return block
   }
 
 if_expression =
-  'ELE QUE A GENTE QUER?'
-    ws+ condition:condition_expressions ws* bl
-    ident* block:(inner_block_expressions / else_if_block / bl)*
-    (else_block)?
+    ident* 'ELE QUE A GENTE QUER?'
+    ws+ test:condition_expressions ws* bl
+    ident* consequent:(mandatory_block)
+    alternate:(else_block / else_if_block)?
     ident* 'BIRL'
     { return {
-      condition,
-        block,
+        type: 'IfStatement',
+        test,
+        consequent,
+        alternate,
       }
     }
 
@@ -249,7 +261,7 @@ open_parenthesis = '('
 close_parenthesis = '('
 
 operation
-  = open_parenthesis? op:(operation_terminal) close_parenthesis?
+  = open_parenthesis? op:operation_terminal close_parenthesis?
   {
     return op;
   }
@@ -270,8 +282,8 @@ operation_terminal
 // ==========================
 //
 
-continue = 'VAMO MONSTRO;' { return 'continue' }
-break = 'SAI FILHO DA PUTA;' { return 'break' }
+continue = 'VAMO MONSTRO' { return 'continue' }
+break = 'SAI FILHO DA PUTA' { return 'break' }
 
 for_block
   = head:(inner_block_expressions) tail:(inner_block_expressions)*
@@ -316,7 +328,10 @@ while_loop
 // ==========================
 //
 
-inner_block_expressions = (continue / break / return / expression) bl?
+inner_block_expressions = block:(continue / break / return / expression) bl?
+  {
+    return block
+  }
 
 expression
   = ident:ident* expression:(
