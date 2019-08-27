@@ -9,7 +9,7 @@ BIRL
 
 describe('standard_function_call', function() {
   describe('CE QUER VER ESSA PORRA?', function() {
-    it('should return correct code', function() {
+    it('should return correct code for console.log', function() {
       // Arrange, Act
       const jsCode = birl.birlToJs(birlCode);
 
