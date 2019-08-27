@@ -452,24 +452,46 @@ expression
 value
   = (string / number)
 
-array_separator
-  = ',' {return ''}
-
 array
-  = '[' head:value tail:(array_separator value)* ']'
+  = '[' ws* elements:arg_list? ws* ']'
   {
-    var array = [head]
-    for (var t in tail) {
-        array.push(tail[t][1])
+    return {
+      type: "ArrayExpression",
+      elements,
     }
-    return array
+  }
+
+object
+  = '{' ws* bl* ws* key_values:(
+          (value ws* ':' ws* call_args ws* bl*)
+          (',' ws* bl* ws* value ws* ':' ws* call_args)*
+        )* ws* ','? ws* bl*
+    ws* '}'
+  {
+    const values = [key_values[0][0]].concat(key_values[0][1]);
+    const properties = values.map((keyValueArray) => {
+      if (keyValueArray.length > 0) {
+        const isHead = keyValueArray[0] !== ',';
+        const key = isHead ? keyValueArray[0] : keyValueArray[4];
+        const value = isHead ? keyValueArray[4] : keyValueArray[8];
+        return {
+          type: 'ObjectProperty',
+          key,
+          value,
+        }
+      }
+    });
+    return {
+      type: 'ObjectExpression',
+      properties,
+    }
   }
 
 iterable
   = array
 
 var_values
-  = (value / operation / function_call)
+  = (value / array / object / operation / function_call)
 
 attribution_operators = ('=' / '-=' / '+=')
 
