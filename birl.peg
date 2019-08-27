@@ -82,7 +82,7 @@ return_expression
   }
 
 call_args
- = (unary_operation / operation / value / var_identifier)
+ = (unary_operation / member_call_statement / function_call / operation / value / var_identifier)
 
 arg_list
   = head:call_args tail:(ws? ',' ws? call_args)*
@@ -125,6 +125,16 @@ function_call
     }
   }
 
+simple_function_call
+  = callee:var_identifier '(' ws* args:arg_list ws* ')'
+  {
+    return {
+      type: 'CallExpression',
+      callee,
+      arguments: args,
+    }
+  }
+
 arg_declaration_list
   = head:( types ws+ var_identifier) tail:(ws* ',' ws+ types ws var_identifier)* ws*
   {
@@ -147,6 +157,58 @@ function_declaration
       params,
       body,
     }
+  }
+
+// TRAPEZIO DESCENDENTE
+// member expressions
+// ==========================
+//
+
+member_statement
+  = head:var_identifier '.' tail:(var_identifier '.')* final:var_identifier
+  {
+    const initial = head;
+    tail.push([final])
+    return tail.reduce((acc, value) => {
+      return {
+        type: 'MemberExpression',
+        object: acc,
+        property: value[0],
+      }
+    }, initial);
+  }
+
+member_call_statement
+  = callee:(member_statement)
+    args:(
+      ("(" (ws* arg_list ws*)? ")") /
+      ("[" ws* arg_list ws* "]")
+    )*
+  {
+    let result = callee;
+    args.forEach((arg) => {
+      if (arg && arg[0] == "(") {
+        const a = arg[1] ? arg[1][1] : null;
+        result = {
+          type: "CallExpression",
+          arguments: a,
+          callee: result,
+        };
+      }
+      if (arg && arg[0] == "[") {
+        result = {
+          type: 'MemberExpression',
+          object: result,
+          property: arg[2].pop(), /* Because js is amazing, sike */
+        };
+      }
+    });
+    return result;
+  }
+
+member_expression = member_expression:(member_call_statement)
+  {
+    return member_expression;
   }
 
 // ELE QUE A GENTE QUER
@@ -362,6 +424,7 @@ expression_statement = expression:(
     unary_operation /
     var_attribution /
     value /
+    member_expression /
     function_call /
     standard_function_call
   )

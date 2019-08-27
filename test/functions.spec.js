@@ -20,6 +20,12 @@ AJUDA O MALUCO TA DOENTE SOMA_MONSTRO(1, 2)
 BIRL
 `;
 
+const functionCallCodeAllArgs = `
+HORA DO SHOW
+AJUDA O MALUCO TA DOENTE SOMA_MONSTRO(x, x--, x- 1, "x", AJUDA O MALUCO TA DOENTE SOMA_MONSTRO(y))
+BIRL
+`;
+
 
 describe('functions', function() {
   describe('OH O HOME AI PO', function() {
@@ -37,6 +43,14 @@ describe('functions', function() {
 
       // Assert
       jsCode.should.be.equal('function SOMA_MONSTRO(A, B) {\n  var SOMA = A + B;\n  return SOMA;\n}\n\nSOMA_MONSTRO(1, 2);');
+    });
+
+    it('should return correct code for function call with all argument types', function() {
+      // Arrange, Act
+      const jsCode = birl.birlToJs(functionCallCodeAllArgs);
+
+      // Assert
+      jsCode.should.be.equal('SOMA_MONSTRO(x, x--, x - 1, "x", SOMA_MONSTRO(y));');
     });
   });
 });
