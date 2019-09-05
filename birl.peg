@@ -4,7 +4,7 @@
 //
 
 program
-  = bl* begin_program ws* bl program:(expression)* end_program bl*
+  = bl* begin_program ws* bl* program:(expression)* end_program bl*
   {
     return {
       type: 'File',
@@ -13,16 +13,16 @@ program
         body: program,
       },
     }
-}
+  }
 
+begin_program = 'HORA DO SHOW'
+end_program = 'BIRL'
 
 // TOMA ESSES PESOS SEU MERDA
 // Types
 // ==========================
 //
 
-begin_program = 'HORA DO SHOW'
-end_program = 'BIRL'
 char_type = 'FRANGO'
 short_type = 'MONSTRINHO'
 int_type = 'MONSTRO'
@@ -32,9 +32,7 @@ double_type = 'TRAPEZIO DESCENDENTE'
 unsigned_type = 'BICEPS MONSTRO' // Only unsigned int
 
 types
- = (begin_program /
-    end_program /
-    char_type /
+ = (char_type /
     short_type /
     int_type /
     long_type /
@@ -95,7 +93,7 @@ arg_list
   }
 
 standard_function_call
-  = function_name:standard_functions ws* '(' ws* args:arg_list ws* ')'
+  = function_name:standard_functions ws* '(' ws* args:arg_list? ws* ')'
   {
     /* VIRA console.log MONSTRAO */
     return {
@@ -126,7 +124,7 @@ function_call
   }
 
 simple_function_call
-  = callee:var_identifier '(' ws* args:arg_list ws* ')'
+  = callee:var_identifier '(' ws* args:arg_list? ws* ')'
   {
     return {
       type: 'CallExpression',
@@ -306,33 +304,50 @@ operators
     and_operator
  )
 
-operands = (function_call / unary_operation / value / var_identifier)
-
 operation_expression = op:operation
   {
     return op
   }
 
-open_parenthesis = '('
-close_parenthesis = '('
-
 operation
-  = open_parenthesis? op:operation_terminal close_parenthesis?
-  {
-    return op;
-  }
-
-operation_terminal
-  = o1:operands ws? operator:operators ws? o2:(operation / operands) ws?
-  {
-    return {
-      type: 'BinaryExpression',
-      left: o1,
-      operator,
-      right: o2,
+  = head:Factor tail:(_ (operators) _ Factor)+ {
+    if (tail.length == 0) {
+      return head;
     }
+    const result = {
+      type: 'BinaryExpression',
+      left: head,
+    };
+    return tail.reduce(function(result, element) {
+      const expr = {
+        type: 'BinaryExpression',
+        operator: element[1],
+        left: result,
+        right: element[3],
+      };
+      return expr;
+    }, head);
   }
 
+operation_values
+  = (unary_operation /
+     member_call_statement /
+     simple_function_call /
+     function_call /
+     var_identifier /
+     value)
+
+Factor
+  = expr:("(" _ operation _ ")" / operation_values)
+  {
+    if (expr.length) {
+      return expr[2];
+    }
+    return expr;
+  }
+
+_ "whitespace"
+  = [ \t\n\r]*
 
 unary_operators = operator:('++' / '--')
   {
@@ -420,13 +435,14 @@ inner_block_expressions = block:(continue / break / expression / expression_stat
   }
 
 expression_statement = expression:(
-    operation_expression /
-    unary_operation /
     var_attribution /
-    value /
     member_expression /
     function_call /
-    standard_function_call
+    standard_function_call /
+    simple_function_call /
+    operation_expression /
+    unary_operation /
+    value
   )
   {
     return {
@@ -449,8 +465,9 @@ expression
   {
     return expression;
   }
+
 value
-  = (string / number)
+  = (number / string)
 
 array
   = '[' ws* elements:arg_list? ws* ']'
@@ -491,7 +508,7 @@ iterable
   = array
 
 var_values
-  = (value / array / object / operation / function_call)
+  = (operation / value / array / object / function_call)
 
 attribution_operators = ('=' / '-=' / '+=')
 
@@ -539,7 +556,7 @@ ident
   = '  '
 
 variable_name
-  = head:[a-zA-Z_]+ tail:[a-zA-Z0-9_]* { return head.concat(tail).join("") }
+  = head:[a-zA-Z_] tail:[a-zA-Z0-9_]* { return head + tail.join("") }
 
 string
   = quotation_mark chars:char* quotation_mark
@@ -550,10 +567,15 @@ string
     };
   }
 
-number = num:[0-9]+ {
+number = num:[0-9]+ tail:('.' [0-9]*)? {
+  let value = parseInt(num.join(""), 10);
+  if (tail) {
+    const floatValue = value + '.' + tail[1].join("");
+    value = parseFloat(floatValue, 10);
+  }
   return {
     type: 'NumericLiteral',
-    value: parseInt(num.join(""), 10),
+    value,
   }
 }
 

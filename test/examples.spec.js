@@ -12,7 +12,7 @@ describe('example tests', function() {
       const jsCode = birl.birlToJs(fatorial);
 
       // Assert
-      jsCode.should.be.equal('function FATORIAL_MONSTRO(N) {\n  if (N == 1) {\n    return 1;\n  }\n\n  return N * FATORIAL_MONSTRO(N - 1);\n}\n\nvar FAT = FATORIAL_MONSTRO(5);\nconsole.log(FAT);');
+      jsCode.should.be.equal('function FATORIAL_MONSTRO(N) {\n  if (N == 1) {\n    return 1;\n  }\n\n  return N * FATORIAL_MONSTRO(N - 1);\n}\n\nvar VALUE = process.argv[3] || 5;\nvar FAT = FATORIAL_MONSTRO(VALUE);\nconsole.log("BIRL!", FAT);');
     });
 
     it('should return correct code for hello world', function() {

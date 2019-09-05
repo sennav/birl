@@ -1,3 +1,4 @@
+#! /usr/bin/env node
 const fs = require('fs');
 const { birlToJs } = require('./birl.js');
 
