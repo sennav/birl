@@ -1,5 +1,8 @@
 # BIRL JS _(Bambam's "It's show time" Recursive Language JavaFrangoScript)_
 
+[![Build Status](https://travis-ci.org/sennav/birl.svg?branch=master)](https://travis-ci.org/sennav/birl)
+[![NPM Version](https://img.shields.io/npm/v/birl-js.svg?style=flat)](https://www.npmjs.com/package/birl-js)
+
 Sai de casa codei pra caralho!™
 
 Essa é a versão frango da linguagem BIRL, em vez de ser _"baseada em C e compilada por uma ferramenta mal-feita num servidor frango"_ essa versão frango transpila pra javascript. Todos os tipos foram mantidos mas ~eles são só água com músculo~ AQUI NÃO TEM ÁGUA COM MÚSCULO.
