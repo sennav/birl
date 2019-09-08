@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "babel-generator": "^6.26.1",
+    "commander": "^3.0.1",
     "pegjs": "^0.10.0"
   },
   "devDependencies": {
