@@ -29,7 +29,7 @@ int_type = 'MONSTRO'
 long_type = 'MONSTRAO'
 float_type = 'TRAPEZIO'
 double_type = 'TRAPEZIO DESCENDENTE'
-unsigned_type = 'BICEPS MONSTRO' // Only unsigned int
+unsigned_type = 'BICEPS MONSTRO'
 
 types
  = (char_type /
@@ -44,6 +44,7 @@ types
 // Standard functions
 // ==========================
 //
+
 print_func
   = 'CE QUER VER ESSA PORRA?'
 
@@ -55,12 +56,6 @@ standard_functions
 // ==========================
 //
 
-function_pre_call
-  = 'AJUDA O MALUCO TA DOENTE'
-
-function_pre_declaration
-  = 'OH O HOME AI PO'
-
 birl
   = 'BIRL'
 
@@ -68,6 +63,12 @@ birl
 // function tokens
 // ==========================
 //
+
+function_pre_call
+  = 'AJUDA O MALUCO TA DOENTE'
+
+function_pre_declaration
+  = 'OH O HOME AI PO'
 
 return_expression
   = ident* 'BORA CUMPADI' ws+
@@ -599,8 +600,7 @@ char
 
 escape         = "\\"
 quotation_mark = '"'
-single_quotation_mark = "'"
 unescaped      = [\x20-\x21\x23-\x5B\x5D-\u10FFFF]
 HEXDIG = [0-9a-f]i
-bl = [\n]+ { return 'break_line' }
-ws = [ \t\r]+ { return 'space'}
+bl = [\n]+
+ws = [ \t\r]+
