@@ -67,6 +67,12 @@ console.bla.log()[1]()[3]()()[4]
 BIRL
 `;
 
+const requireStatement = `
+HORA DO SHOW
+require("BIRL")
+BIRL
+`;
+
 describe('member berry tests', function() {
   describe('TRAPEZIO DESCENDENTE', function() {
     it('should return correct code calling function on member expression with string', function() {
@@ -155,6 +161,14 @@ describe('member berry tests', function() {
 
       // Assert
       jsCode.should.be.equal('console.bla.log()[1]()[3]()()[4];');
+    });
+
+    it('should return correct code simple function call', function() {
+      // Arrange, Act
+      const jsCode = birl.birlToJs(requireStatement);
+
+      // Assert
+      jsCode.should.be.equal('require("BIRL");');
     });
   });
 });

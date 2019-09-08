@@ -1,5 +1,5 @@
 {
-  "name": "birl",
+  "name": "birl-js",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -7,7 +7,7 @@
     "start": "node index.js",
     "test": "mocha"
   },
-  "author": "",
+  "author": "sennav",
   "license": "ISC",
   "dependencies": {
     "babel-generator": "^6.26.1",
