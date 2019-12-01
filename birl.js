@@ -1,8 +1,9 @@
+const path = require('path');
 const pegjs = require('pegjs');
 const fs = require('fs');
 const generate = require('babel-generator').default;
 
-const grammar = fs.readFileSync('./birl.peg', 'utf8');
+const grammar = fs.readFileSync(path.resolve(__dirname, 'birl.peg'), 'utf8');
 const birl = pegjs.generate(grammar);
 
 function getBirlAST(birlCode) {

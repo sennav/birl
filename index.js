@@ -10,7 +10,7 @@ function main() {
   program
     .version('BIRL 1.0.0')
     .option('-j, --javascript', 'MOSTRA ESSE JAVASCRIPT TREZE!')
-    .arguments('<SEU PROGRAMA FRANGO>')
+    .arguments('<SEU_PROGRAMA_FRANGO>')
     .action((filename) => {
       birlFilepath = filename;
     });
