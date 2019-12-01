@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "keywords": ["birl", "js", "transpile"],
+  "homepage": "https://github.com/sennav/birl",
+  "bugs": {
+    "url": "https://github.com/sennav/birl/issues"
+  },
   "scripts": {
     "start": "node index.js",
     "test": "mocha"
