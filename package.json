@@ -3,7 +3,12 @@
   "version": "1.0.1",
   "description": "",
   "main": "index.js",
-  "keywords": ["birl", "js", "transpile"],
+  "repository": "github:sennav/birl",
+  "keywords": [
+    "birl",
+    "js",
+    "transpile"
+  ],
   "homepage": "https://github.com/sennav/birl",
   "bugs": {
     "url": "https://github.com/sennav/birl/issues"
@@ -21,7 +26,7 @@
   },
   "devDependencies": {
     "chai": "^4.2.0",
-    "mocha": "^6.2.0"
+    "mocha": "^7.1.2"
   },
   "bin": {
     "birl": "index.js"
