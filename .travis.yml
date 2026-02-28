@@ -1,7 +1,6 @@
-language: node_js
-node_js:
-  - lts/*
-install:
-  - npm install
+services:
+  - docker
+
 script:
-  - npm test
+  - docker run --rm -v "$PWD:/app" -w /app oven/bun:latest bun install
+  - docker run --rm -v "$PWD:/app" -w /app oven/bun:latest bun run test
