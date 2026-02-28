@@ -30,7 +30,6 @@ git push --tags
 
 echo "Publishing package"
 read -sn 1 -p "Press any key to continue..." && echo ""
-npm publish --tag "birl-js@$VERSION"
-npm dist-tag add "birl-js@$VERSION" latest
+npm publish
 
 echo "Version $VERSION published"
