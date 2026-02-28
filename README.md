@@ -1,6 +1,6 @@
 # BIRL JS _(Bambam's "It's show time" Recursive Language JavaFrangoScript)_
 
-[![Build Status](https://travis-ci.org/sennav/birl.svg?branch=master)](https://travis-ci.org/sennav/birl)
+[![Build Status](https://github.com/sennav/birl/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/sennav/birl/actions)
 [![NPM Version](https://img.shields.io/npm/v/birl-js.svg?style=flat)](https://www.npmjs.com/package/birl-js)
 
 Sai de casa codei pra caralho!™
