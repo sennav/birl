@@ -8,7 +8,7 @@ function main() {
   const program = new commander.Command();
 
   program
-    .version('BIRL 1.0.2')
+    .version('BIRL 1.0.3')
     .option('-j, --javascript', 'MOSTRA ESSE JAVASCRIPT TREZE!')
     .arguments('<SEU_PROGRAMA_FRANGO>')
     .action((filename) => {
